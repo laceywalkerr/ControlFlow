@@ -1,9 +1,29 @@
-﻿// using System;
-// using System.Collections.Generic;
-// using System.Collections.Generic;
-// using System.Text;
-// using Microsoft.Data.SqlClient;
-// using Roommates.Models;
+﻿using Microsoft.Data.SqlClient;
+using Roommates.Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Roommates.Repositories
+{
+    public class RoommateRepository : BaseRepository 
+    {
+        public RoommateRepository(string connectionString) : base(connectionString) { }
+
+        // GetById is the name of the method, it returns the stuff
+        public Roommate GetById(int id)
+        {
+            using(SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+
+                }
+            }
+        }
+    }
+}
 
 // namespace Roommates.Repositories
 // {
