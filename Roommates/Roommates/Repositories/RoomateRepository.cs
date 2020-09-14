@@ -127,7 +127,7 @@ namespace Roommates.Repositories
             }
         }
 
-        public void Delete(Roommate roommate)
+        public void Delete(int id)
         {
             using (SqlConnection conn = Connection)
             {
@@ -135,19 +135,16 @@ namespace Roommates.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
 
-                    cmd.CommandText = $@"DELETE FROM Roommate
-                                            (FirstName, LastName, RentPortion, MoveInDate, RoomId)
-                                            OUTPUT INSERTED.Id
-                                            VALUES
-                                            ( '{roommate.Lastname}', '{roommate.Firstname}', '{roommate.RentPortion}',
-                                              '{roommate.MovedInDate}', '{roommate.RoomId}' )";
+                    cmd.CommandText = @"DELETE FROM Roommate WHERE id = @id";
+                                         cmd.Parameters.AddWithValue("@id", id);
 
-                    int id = (int)cmd.ExecuteScalar();
-
-                    roommate.Id = id;
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
+
+      
+                  
     }
 }
 
