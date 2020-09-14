@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using System;
 
 namespace Roommates.Models
 {
@@ -16,4 +12,4 @@ namespace Roommates.Models
         public DateTime MovedInDate { get; set; }
         public Room Room { get; set; }
     }
-} 
+}

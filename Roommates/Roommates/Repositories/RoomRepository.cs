@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 using Microsoft.Data.SqlClient;
 using Roommates.Models;
-using System.Collections.Generic;
 
 namespace Roommates.Repositories
 {
@@ -20,6 +18,9 @@ namespace Roommates.Repositories
         public RoomRepository(string connectionString) : base(connectionString) { }
 
         // ...We'll add some methods shortly
+        /// <summary>
+        ///  Get a list of all Rooms in the database
+        /// </summary>
         public List<Room> GetAll()
         {
             //  We must "use" the database connection.
@@ -28,13 +29,13 @@ namespace Roommates.Repositories
             //  interact with the database and we Close() them when we're finished.
             //  In C#, a "using" block ensures we correctly disconnect from a resource even if there is an error.
             //  For database connections, this means the connection will be properly closed.
-            using (SqlConnection conn = Connection)
+            using(SqlConnection conn = Connection)
             {
                 // Note, we must Open() the connection, the "using" block doesn't do that for us.
                 conn.Open();
 
                 // We must "use" commands too.
-                using (SqlCommand cmd = conn.CreateCommand())
+                using(SqlCommand cmd = conn.CreateCommand())
                 {
                     // Here we setup the command with the SQL we want to execute before we execute it.
                     cmd.CommandText = "SELECT Id, Name, MaxOccupancy FROM Room";
@@ -58,8 +59,8 @@ namespace Roommates.Repositories
                         int nameColumnPosition = reader.GetOrdinal("Name");
                         string nameValue = reader.GetString(nameColumnPosition);
 
-                        int maxOccupancyColumnPosition = reader.GetOrdinal("MaxOccupancy");
-                        int maxOccupancy = reader.GetInt32(maxOccupancyColumnPosition);
+                        int maxOccupancyColunPosition = reader.GetOrdinal("MaxOccupancy");
+                        int maxOccupancy = reader.GetInt32(maxOccupancyColunPosition);
 
                         // Now let's create a new room object using the data from the database.
                         Room room = new Room
@@ -80,22 +81,49 @@ namespace Roommates.Repositories
                     return rooms;
                 }
             }
+        }
 
+        /// <summary>
+        ///  Add a new room to the database
+        ///   NOTE: This method sends data to the database,
+        ///   it does not get anything from the database, so there is nothing to return.
+        /// </summary>
+        public void Insert(Room room)
+        {
+            using(SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using(SqlCommand cmd = conn.CreateCommand())
+                {
+                    // These SQL parameters are annoying. Why can't we use string interpolation?
+                    // ... sql injection attacks!!!
+                    cmd.CommandText = @"INSERT INTO Room (Name, MaxOccupancy) 
+                                         OUTPUT INSERTED.Id 
+                                         VALUES (@name, @maxOccupancy)";
+                    cmd.Parameters.AddWithValue("@name", room.Name);
+                    cmd.Parameters.AddWithValue("@maxOccupancy", room.MaxOccupancy);
+                    int id = (int) cmd.ExecuteScalar();
+
+                    room.Id = id;
+                }
+            }
+
+            // when this method is finished we can look in the database and see the new room.
         }
         /// <summary>
         ///  Updates the room
         /// </summary>
         public void Update(Room room)
         {
-            using (SqlConnection conn = Connection)
+            using(SqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using(SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"UPDATE Room
-                                    SET Name = @name,
-                                        MaxOccupancy = @maxOccupancy
-                                    WHERE Id = @id";
+                                            SET Name = @name,
+                                                MaxOccupancy = @maxOccupancy
+                                            WHERE Id = @id";
                     cmd.Parameters.AddWithValue("@name", room.Name);
                     cmd.Parameters.AddWithValue("@maxOccupancy", room.MaxOccupancy);
                     cmd.Parameters.AddWithValue("@id", room.Id);
@@ -110,10 +138,10 @@ namespace Roommates.Repositories
         /// </summary>
         public void Delete(int id)
         {
-            using (SqlConnection conn = Connection)
+            using(SqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
+                using(SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "DELETE FROM Room WHERE Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
@@ -122,11 +150,4 @@ namespace Roommates.Repositories
             }
         }
     }
-//Let 's see how we can get data out of our Room table and convert it into a List<Room>. Add the following method to your RoomRepository class
-
- /// <summary>
- ///  Get a list of all Rooms in the database
- /// </summary>
-
 }
-
