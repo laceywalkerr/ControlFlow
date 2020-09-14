@@ -70,7 +70,16 @@ namespace Roommates
             /*Roommate another = roommateRepository.GetById(999);
             Console.WriteLine($"{another.Firstname} {another.Lastname}");*/
 
+            Roommate newRoommate = new Roommate()
+            {
+                Firstname = "Sadie",
+                Lastname = "Bean",
+                MovedInDate = DateTime.Now.AddDays(-1),
+                RoomId = 1,
+                RentPortion = 10
 
+            };
+            roommateRepository.Insert(newRoommate);
         }
     }
 }
