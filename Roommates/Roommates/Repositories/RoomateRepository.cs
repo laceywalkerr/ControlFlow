@@ -18,21 +18,33 @@ namespace Roommates.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT    Id,
-		                                        FirstName,
-		                                        LastName,
-		                                        RentPortion,
-		                                        MoveInDate,
-		                                        RoomId
-                                        FROM Roommate
-                                        WHERE id = @id";
+                    cmd.CommandText = @"SELECT	rm.Id,
+		                                        rm.FirstName,
+		                                        rm.LastName,
+		                                        rm.RentPortion,
+		                                        rm.MoveInDate,
+		                                        rm.RoomId AS RoommateRoomId,
+		                                        r.id AS RoomId,
+		                                        r.Name,
+		                                        r.MaxOccupancy
+
+                                        FROM Roommate rm LEFT JOIN Room r ON r.id = rm.RoomId
+                                        WHERE rm.id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     Roommate roommate = null;
+                    Room room = null;
 
                     if (reader.Read())
                     {
+                        room = new Room()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy")),
+                        };
+
                         roommate = new Roommate()
                         {
                             Id = id,
@@ -40,13 +52,14 @@ namespace Roommates.Repositories
                             Lastname = reader.GetString(reader.GetOrdinal("LastName")),
                             RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                             MovedInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
-                            Room = null
+                            Room = room
                         };
                     }
                     reader.Close();
                     return roommate;
                 }
             }
+
         }
     }
 }
