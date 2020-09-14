@@ -62,6 +62,15 @@ namespace Roommates
                 Console.WriteLine($"{room.Id} {room.Name} {room.MaxOccupancy}");
             }
 
+            RoommateRepository roommateRepository = new RoommateRepository(CONNECTION_STRING);
+
+            Roommate aRoommate = roommateRepository.GetById(2);
+            Console.WriteLine($"{aRoommate.Firstname} {aRoommate.Lastname}");
+
+            /*Roommate another = roommateRepository.GetById(999);
+            Console.WriteLine($"{another.Firstname} {another.Lastname}");*/
+
+
         }
     }
 }
