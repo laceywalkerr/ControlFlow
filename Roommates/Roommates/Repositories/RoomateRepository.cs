@@ -52,6 +52,7 @@ namespace Roommates.Repositories
                             Lastname = reader.GetString(reader.GetOrdinal("LastName")),
                             RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                             MovedInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
+                            RoomId = reader.GetInt32(reader.GetOrdinal("RoomId")),
                             Room = room
                         };
                     }
@@ -60,6 +61,32 @@ namespace Roommates.Repositories
                 }
             }
 
+        }
+
+        public void Insert(Roommate roommate)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO Roommate
+                                            (FirstName, LastName, RentPortion, MoveInDate, RoomId)
+                                            VALUES
+                                            (@FirstName, @LastName, @RentPortion, @MoveInDate, @RoomId)";
+                    cmd.Parameters.AddWithValue("@LastName", roommate.Lastname);
+                    cmd.Parameters.AddWithValue("@FirstName", roommate.Firstname);
+                    cmd.Parameters.AddWithValue("@RentPortion", roommate.RentPortion);
+                    cmd.Parameters.AddWithValue("@MoveInDate", roommate.MovedInDate);
+                    cmd.Parameters.AddWithValue("@RoomId", roommate.RoomId);
+
+                    int id = (int)cmd.ExecuteScalar();
+
+                    roommate.Id = id;
+                }
+            }
+
+            // when this method is finished we can look in the database and see the new room.
         }
     }
 }
